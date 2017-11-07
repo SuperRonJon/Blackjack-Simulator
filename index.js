@@ -52,6 +52,7 @@ function Dealer(deck) {
 	this.deck = deck;
 	this.deck.initialize();
 	this.deck.shuffle();
+	this.hand = [];
 }
 
 // argument: quant = quantity (how many)
@@ -69,13 +70,12 @@ Dealer.prototype.dealCards = function(quant) {
 	return drawnCards;
 };
 
-//arguments: cards = array of card objects, player = player object to give the cards to
-Dealer.prototype.dealToPlayer = function(cards, player){
-	for(var i = 0; i < cards.length; i++){
-		player.hand.push(cards[i]);
+//Takes array of card objects and adds them to the player's hand
+Dealer.prototype.addCardsToHand = function(cards, target) {
+	for (var i = 0; i < cards.length; i++) {
+		target.hand.push(cards[i]);
 	}
-	
-}
+};
 
 // Player class
 // args: name of the player
@@ -83,15 +83,7 @@ Dealer.prototype.dealToPlayer = function(cards, player){
 function Player(name) {
 	this.name = name;
 	this.hand = [];
-	// TODO: Maybe add a action field. That describes what action player takes (stand, hit, ..);
-	// Or maybe it's better implemented with prototype functions
-}
-
-//Takes array of card objects and adds them to the player's hand
-Player.prototype.addCardsToHand = function(cards){
-	for(var i = 0; i < cards.length; i++){
-		this.hand.push(cards[i]);
-	}
+	this.currentAction = null;
 }
 
 // Table Class
@@ -102,6 +94,69 @@ function Table(dealer, players) {
 	this.players = players;
 }
 
+// the method where main magic is happening
+// here the rounds get simulated
+// args: number of how often you want to simulate
+
+Table.prototype.simulate = function(numberOfRounds) {
+	// hand out cards 2 for each player.
+	// hand 1 card to the dealer heads up (or active) and a 2nd heads down (not active)
+	// calculate the player action depending on different factors:
+	// what card the dealer has
+	// what cards the player has
+	// depending on that take different actions:
+	// split
+	// hit
+	// new card
+	// double down
+	// pay insurance (if dealer has Ace)
+	// ...
+
+	//run simulation 'numberOfRounds'.times
+	for (var i = 0; i < numberOfRounds; i++) {
+		//give every player 2 cards to their hand
+		this.players.forEach(function(player) {
+			var cards = this.dealer.dealCards(2);
+
+			this.dealer.addCardsToHand(cards, player);
+		}, this);
+
+		// give the Dealer 2 cards. Set the 2nd to hidden=true
+		var cards = this.dealer.dealCards(2);
+		cards[1].hidden = true;
+		this.dealer.addCardsToHand(cards, this.dealer);
+
+		// compute
+
+		this.computePlayerAction(this.dealer.hand, this.players);
+	}
+};
+
+// this computes the action the players want to take and returns it
+// args: the current dealer and all players
+Table.prototype.computePlayerAction = function(dealerHand, players) {
+	players.forEach(function(player) {
+		var playerHand = player.hand;
+		var actionCase = this.getPlayerAction(dealerHand, playerHand);
+	}, this);
+};
+
+// this gets just the action and returns it for a single player
+// args: dealer hand and player hand
+
+Table.prototype.getPlayerAction = function(dealerHand, playerHand) {
+	// loop through dealerHand
+	dealerHand.forEach(function(dealerCard) {
+		// if card is not hidden loop through player cards
+		if (!dealerCard.hidden) {
+			playerHand.forEach(function(playerCard) {
+				// now we have each card and can compare it to the dealers card(s) and do something with it.
+				// TODO: Finish this beast + Tests
+			});
+		}
+	});
+};
+
 // Card Class
 // args: value and color of a card :)
 
@@ -109,5 +164,5 @@ function Card(value, color) {
 	this.value = value;
 	this.color = color;
 	// card is hidden default
-	this.hidden = true;
+	this.hidden = false;
 }
