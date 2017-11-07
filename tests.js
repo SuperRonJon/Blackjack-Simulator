@@ -100,7 +100,6 @@ describe('Dealer', function() {
 		}).toThrow('args needs to be 1 or < 312');
 	});
 	
-	
 	it('should have a dealToPlayer function to give cards directly to a players hand', function(){
 		var dealedCards = dealer.dealCards(3);
 		player1 = new Player();
