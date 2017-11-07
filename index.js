@@ -69,6 +69,15 @@ Dealer.prototype.dealCards = function(quant) {
 	return drawnCards;
 };
 
+//arguments: cards = array of card objects
+//			 player = player object to give the cards to
+Dealer.prototype.dealToPlayer = function(cards, player){
+	for(var i = 0; i < cards.length; i++){
+		player.hand.push(cards[i]);
+	}
+	
+}
+
 // Player class
 // args: name of the player
 
